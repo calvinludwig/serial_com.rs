@@ -3,15 +3,22 @@
     windows_subsystem = "windows"
 )]
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+use serial_com::SerialCom;
+use std::thread;
+use tauri::Window;
+
+mod serial_com;
+
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+fn start_com(window: Window) {
+    thread::spawn(move || {
+        SerialCom::new(window).start();
+    });
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![start_com])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
